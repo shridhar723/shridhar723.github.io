@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shridhar Patil - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Even darker slate background */
+            color: #e2e8f0;
+        }
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #020617;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #6366f1;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #818cf8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+
+        /* Section styling and animations */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            position: relative;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (max-width: 768px) {
+            .section {
+                min-height: auto;
+                padding: 6rem 0;
+                background-attachment: scroll; /* Disable parallax on mobile for performance */
+            }
+        }
+
+        /* Live background canvas */
+        #live-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Title underline */
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* Modern card style */
+        .modern-card {
+            background: rgba(15, 23, 42, 0.5); /* Semi-transparent slate */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .modern-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        /* Typing animation */
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background-color: #c084fc;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Prevent body scroll when mobile menu is open */
+        .body-no-scroll {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-300">
+
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-slate-950/70 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 border-b border-slate-800/50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#home" class="text-2xl font-bold text-white tracking-wider">SP.</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <a href="#home" class="text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                        <a href="#about" class="text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                        <a href="#skills" class="text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Skills</a>
+                        <a href="#work" class="text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Work</a>
+                        <a href="#contact" class="text-slate-300 hover:bg-slate-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Contact</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none">
+                        <span class="sr-only">Open main menu</span>
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Backdrop -->
+    <div id="mobile-menu-backdrop" class="hidden fixed inset-0 bg-black/60 z-[99] transition-opacity duration-300"></div>
+
+    <!-- Mobile Menu Side Panel -->
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-4/5 max-w-xs bg-slate-900/95 backdrop-blur-sm z-[100] transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="flex flex-col h-full p-8">
+            <button id="close-menu-button" class="self-end text-slate-400 hover:text-white mb-8">
+                <i data-lucide="x" class="h-8 w-8"></i>
+            </button>
+            <nav class="flex flex-col items-start space-y-6">
+                <a href="#home" class="mobile-nav-link text-2xl font-medium text-slate-300 hover:text-indigo-400 transition-colors">Home</a>
+                <a href="#about" class="mobile-nav-link text-2xl font-medium text-slate-300 hover:text-indigo-400 transition-colors">About</a>
+                <a href="#skills" class="mobile-nav-link text-2xl font-medium text-slate-300 hover:text-indigo-400 transition-colors">Skills</a>
+                <a href="#work" class="mobile-nav-link text-2xl font-medium text-slate-300 hover:text-indigo-400 transition-colors">Work</a>
+                <a href="#contact" class="mobile-nav-link text-2xl font-medium text-slate-300 hover:text-indigo-400 transition-colors">Contact</a>
+            </nav>
+        </div>
+    </div>
+
+
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="section relative bg-cover bg-center flex items-center justify-center overflow-hidden">
+            <canvas id="live-background"></canvas>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-4" style="text-shadow: 2px 2px 12px rgba(0,0,0,0.5);">Hi, I'm Shridhar Patil</h1>
+                <p class="text-lg sm:text-xl md:text-2xl text-slate-300 mb-8" style="text-shadow: 1px 1px 8px rgba(0,0,0,0.5);">
+                    <span id="typing-text"></span><span class="typing-cursor"></span>
+                </p>
+                <a href="#work" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 py-3 px-8 rounded-full text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-indigo-500/40">View My Work</a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section bg-slate-900/50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white section-title">About Me</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-16 items-center">
+                    <div class="md:col-span-2">
+                         <div class="modern-card p-6">
+                            <img src="https://placehold.co/400x400/1e293b/ffffff?text=JD" alt="John Doe" class="rounded-lg shadow-2xl mx-auto w-full">
+                        </div>
+                    </div>
+                    <div class="md:col-span-3 text-center md:text-left">
+                        <p class="text-slate-300 leading-relaxed mb-4 text-lg">
+                            I am a dedicated software developer with a strong foundation in Java, Python, and C. I also have hands-on experience with web technologies like HTML, CSS, and JavaScript, as well as databases such as MySQL.                        </p>
+                        <p class="text-slate-300 leading-relaxed text-lg">
+                            Currently pursuing my MCA, I am passionate about leveraging technology to solve real-world problems and am eager to contribute my skills to new challenges.                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="section bg-slate-950">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white section-title">My Skills</h2>
+                </div>
+                <div class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="code-2" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">HTML5</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="paintbrush" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">CSS3</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="square-code" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">JavaScript</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-11.5 -10.23174 23 20.46348" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4">
+                          <title>React Logo</title>
+                          <circle cx="0" cy="0" r="2.05" fill="currentColor"/>
+                          <g stroke="currentColor" stroke-width="1" fill="none">
+                            <ellipse rx="11" ry="4.2"/>
+                            <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+                            <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+                          </g>
+                        </svg>
+                        <span class="text-white font-semibold text-sm sm:text-base">React</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="wind" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">Tailwind CSS</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="server" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">Node.js</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="database" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">MongoDB</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="figma" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">Figma</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="git-branch" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">Git</span>
+                    </div>
+                    <div class="modern-card p-6 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="github" class="w-12 h-12 sm:w-16 sm:h-16 text-indigo-400 mb-4"></i>
+                        <span class="text-white font-semibold text-sm sm:text-base">GitHub</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Work Section -->
+        <section id="work" class="section bg-slate-900/50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white section-title">My Work</h2>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="modern-card flex flex-col overflow-hidden group">
+                        <div class="relative overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/ffffff?text=Project+One" alt="Project 1" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-semibold text-white mb-2">Women-Guard</h3>
+                            <p class="text-slate-400 text-sm mb-4 flex-grow">An Android application for personal safety, sending real-time GPS location to emergency contacts via SMS.</p>
+                            <a href="https://github.com/shridhar723/Women-Guard" class="inline-flex items-center text-indigo-400 hover:text-indigo-300 font-semibold mt-auto">View Project <i data-lucide="arrow-right" class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1"></i></a>
+                        </div>
+                    </div>
+                    <div class="modern-card flex flex-col overflow-hidden group">
+                        <div class="relative overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/ffffff?text=Project+Two" alt="Project 2" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-semibold text-white mb-2">Secret-code</h3>
+                            <p class="text-slate-400 text-sm mb-4 flex-grow">A versatile interface for secure text/file encryption, database storage, and QR code functionality using tkinter.</p>
+                            <a href="https://github.com/shridhar723/Secret-code" class="inline-flex items-center text-indigo-400 hover:text-indigo-300 font-semibold mt-auto">View Project <i data-lucide="arrow-right" class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1"></i></a>
+                        </div>
+                    </div>
+                    <div class="modern-card flex flex-col overflow-hidden group">
+                        <div class="relative overflow-hidden">
+                            <img src="https://placehold.co/600x400/1e293b/ffffff?text=Project+Three" alt="Project 3" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-semibold text-white mb-2">Portfolio Website</h3>
+                            <p class="text-slate-400 text-sm mb-4 flex-grow">The very portfolio you're looking at, built with Three.js and Tailwind CSS.</p>
+                            <a href="#" class="inline-flex items-center text-indigo-400 hover:text-indigo-300 font-semibold mt-auto">View Project <i data-lucide="arrow-right" class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section bg-slate-950">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white section-title">Contact Me</h2>
+                </div>
+                <div class="max-w-xl mx-auto modern-card p-8">
+                    <form action="#" method="POST" class="space-y-6">
+                        <div>
+                            <input type="text" name="name" required class="block w-full bg-slate-800/50 border-2 border-slate-700 text-white rounded-md py-3 px-4 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-indigo-500 transition-colors" placeholder="Your Name">
+                        </div>
+                        <div>
+                            <input type="email" name="email" required class="block w-full bg-slate-800/50 border-2 border-slate-700 text-white rounded-md py-3 px-4 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-indigo-500 transition-colors" placeholder="Your Email">
+                        </div>
+                        <div>
+                            <textarea name="message" rows="4" required class="block w-full bg-slate-800/50 border-2 border-slate-700 text-white rounded-md py-3 px-4 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-indigo-500 transition-colors" placeholder="Your Message"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-transform transform hover:scale-105">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800/50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="https://github.com/shridhar723" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transform hover:scale-125 transition-transform"><i data-lucide="github" class="w-6 h-6"></i></a>
+                <a href="https://www.linkedin.com/in/shridhar-patil-81a7762a7/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transform hover:scale-125 transition-transform"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
+                <a href="https://x.com/shridharp21" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transform hover:scale-125 transition-transform"><i data-lucide="twitter" class="w-6 h-6"></i></a>
+            </div>
+            <p class="text-center text-slate-400 text-sm">&copy; 2024 Shridhar Patil. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button id="to-top-button" title="Go To Top" class="hidden fixed z-50 bottom-10 right-10 p-4 border-0 w-14 h-14 rounded-full shadow-md bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-semibold transition-opacity duration-300">
+        <i data-lucide="arrow-up" class="w-6 h-6 mx-auto"></i>
+    </button>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        });
+
+        // Lucide Icons
+        lucide.createIcons();
+
+        // Mobile menu toggle
+        const body = document.querySelector('body');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu-button');
+        const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        function openMenu() {
+            mobileMenu.classList.remove('translate-x-full');
+            mobileMenuBackdrop.classList.remove('hidden');
+            body.classList.add('body-no-scroll');
+        }
+
+        function closeMenu() {
+            mobileMenu.classList.add('translate-x-full');
+            mobileMenuBackdrop.classList.add('hidden');
+            body.classList.remove('body-no-scroll');
+        }
+
+        mobileMenuButton.addEventListener('click', openMenu);
+        closeMenuButton.addEventListener('click', closeMenu);
+        mobileMenuBackdrop.addEventListener('click', closeMenu);
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+
+        // Scroll reveal animation
+        const sections = document.querySelectorAll('.section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        sections.forEach(section => observer.observe(section));
+
+        // Back to Top Button
+        const toTopButton = document.getElementById('to-top-button');
+        window.onscroll = function () {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                toTopButton.classList.remove('hidden');
+            } else {
+                toTopButton.classList.add('hidden');
+            }
+        };
+        toTopButton.addEventListener("click", function(){
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Typing animation
+        const typingText = document.getElementById('typing-text');
+        const phrases = ["A Passionate Web Developer", "A Full-Stack Engineer", "A Creative Problem-Solver"];
+        let phraseIndex = 0;
+        let charIndex = 0;
+
+        function type() {
+            if (charIndex < phrases[phraseIndex].length) {
+                typingText.textContent += phrases[phraseIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(type, 100);
+            } else {
+                setTimeout(erase, 2000);
+            }
+        }
+
+        function erase() {
+            if (charIndex > 0) {
+                typingText.textContent = phrases[phraseIndex].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(erase, 50);
+            } else {
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                setTimeout(type, 500);
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", function() { 
+            setTimeout(type, 500);
+
+            // Live background animation
+            try {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({
+                    canvas: document.querySelector('#live-background'),
+                    alpha: true
+                });
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                const particlesGeometry = new THREE.BufferGeometry();
+                const count = 7000;
+
+                const positions = new Float32Array(count * 3);
+
+                for(let i = 0; i < count * 3; i++) {
+                    positions[i] = (Math.random() - 0.5) * 100;
+                }
+
+                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+                const particlesMaterial = new THREE.PointsMaterial({
+                    size: 0.03,
+                    color: 0x818cf8,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+                scene.add(particles);
+                
+                camera.position.z = 40;
+
+                const mouse = { x: 0, y: 0 };
+                document.addEventListener('mousemove', (event) => {
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                });
+
+                const clock = new THREE.Clock();
+
+                const animate = () => {
+                    const elapsedTime = clock.getElapsedTime();
+
+                    particles.rotation.y = elapsedTime * 0.05;
+                    particles.rotation.x = -mouse.y * 0.2;
+                    particles.rotation.y += mouse.x * 0.2;
+
+                    renderer.render(scene, camera);
+                    window.requestAnimationFrame(animate);
+                };
+
+                animate();
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                });
+            } catch (error) {
+                console.error("Three.js background failed to load.", error);
+            }
+        });
+
+    </script>
+</body>
+</html>
