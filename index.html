@@ -436,24 +436,37 @@
         <i data-lucide="arrow-up" class="w-6 h-6 mx-auto"></i>
     </button>
 
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"> </script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
 
     <script>
         //email
-        document.getElementById("contactForm").addEventListener("submit", function(e) {
-  e.preventDefault();
+       document.addEventListener("DOMContentLoaded", function () {
 
-  emailjs.sendForm(
-    "YOUR_SERVICE_ID",
-    "YOUR_TEMPLATE_ID",
-    this
-  ).then(() => {
-      alert("Message sent successfully!");
-      this.reset();
-  }, (error) => {
-      alert("Failed to send message");
-      console.error(error);
+  // ✅ INITIALIZE FIRST
+  emailjs.init("YOUR_PUBLIC_KEY"); // REQUIRED
+
+  const form = document.getElementById("contactForm");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    emailjs.sendForm(
+      "YOUR_SERVICE_ID",
+      "YOUR_TEMPLATE_ID",
+      this
+    ).then(
+      function () {
+        alert("Message sent successfully!");
+        form.reset();
+      },
+      function (error) {
+        alert("Failed to send message");
+        console.error("EmailJS Error:", error);
+      }
+    );
   });
+
 });
         
         // Preloader
@@ -626,6 +639,7 @@
 
 </body>
 </html>
+
 
 
 
