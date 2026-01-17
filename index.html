@@ -398,7 +398,7 @@
                     <h2 class="text-3xl md:text-4xl font-bold text-white section-title">Contact Me</h2>
                 </div>
                 <div class="max-w-xl mx-auto modern-card p-8">
-                    <form action="send_mail.php" method="POST" class="space-y-6">
+                    <form id="contactForm" method="POST" class="space-y-6">
                         <div>
                             <input type="text" name="name" required class="block w-full bg-slate-800/50 border-2 border-slate-700 text-white rounded-md py-3 px-4 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-indigo-500 transition-colors" placeholder="Your Name">
                         </div>
@@ -436,7 +436,7 @@
         <i data-lucide="arrow-up" class="w-6 h-6 mx-auto"></i>
     </button>
 
-    <script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js">
         // Preloader
         window.addEventListener('load', () => {
             const preloader = document.getElementById('preloader');
@@ -595,10 +595,33 @@
                 console.error("Three.js background failed to load.", error);
             }
         });
+        (function(){
+  emailjs.init("YOUR_PUBLIC_KEY");
+})();
+
+document.getElementById("contactForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  emailjs.sendForm(
+    "YOUR_SERVICE_ID",
+    "YOUR_TEMPLATE_ID",
+    this
+  ).then(() => {
+      alert("Message sent successfully!");
+      this.reset();
+  }, (error) => {
+      alert("Failed to send message");
+      console.error(error);
+  });
+});
 
     </script>
+
+    
+
 </body>
 </html>
+
 
 
 
